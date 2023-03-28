@@ -1552,14 +1552,14 @@ func sweepSecurityGroups(region string) error {
 			}
 
 			// Handle EC2 eventual consistency
-			err := resource.RetryContext(ctx, 1*time.Minute, func() *resource.RetryError {
+			err := retry.RetryContext(ctx, 1*time.Minute, func() *retry.RetryError {
 				_, err := conn.DeleteSecurityGroupWithContext(ctx, input)
 
 				if tfawserr.ErrCodeEquals(err, "DependencyViolation") {
-					return resource.RetryableError(err)
+					return retry.RetryableError(err)
 				}
 				if err != nil {
-					return resource.NonRetryableError(err)
+					return retry.NonRetryableError(err)
 				}
 				return nil
 			})

@@ -20,6 +20,7 @@ import (
 	"github.com/hashicorp/aws-sdk-go-base/v2/awsv1shim/v2/tfawserr"
 	sdkacctest "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/hashicorp/terraform-provider-aws/internal/acctest"
@@ -2774,7 +2775,7 @@ func testAccCheckBucketDestroyWithProvider(ctx context.Context) acctest.TestChec
 			}
 
 			// Retry for S3 eventual consistency
-			err := resource.RetryContext(ctx, 1*time.Minute, func() *resource.RetryError {
+			err := retry.RetryContext(ctx, 1*time.Minute, func() *retry.RetryError {
 				_, err := conn.HeadBucketWithContext(ctx, input)
 
 				if tfawserr.ErrCodeEquals(err, s3.ErrCodeNoSuchBucket) || tfawserr.ErrCodeEquals(err, "NotFound") {
@@ -2782,10 +2783,10 @@ func testAccCheckBucketDestroyWithProvider(ctx context.Context) acctest.TestChec
 				}
 
 				if err != nil {
-					return resource.NonRetryableError(err)
+					return retry.NonRetryableError(err)
 				}
 
-				return resource.RetryableError(fmt.Errorf("AWS S3 Bucket still exists: %s", rs.Primary.ID))
+				return retry.RetryableError(fmt.Errorf("AWS S3 Bucket still exists: %s", rs.Primary.ID))
 			})
 
 			if tfresource.TimedOut(err) {

@@ -172,15 +172,15 @@ func sweepDeliveryChannels(region string) error {
 
 	req := &configservice.DescribeDeliveryChannelsInput{}
 	var resp *configservice.DescribeDeliveryChannelsOutput
-	err = resource.RetryContext(ctx, 1*time.Minute, func() *resource.RetryError {
+	err = retry.RetryContext(ctx, 1*time.Minute, func() *retry.RetryError {
 		var err error
 		resp, err = conn.DescribeDeliveryChannelsWithContext(ctx, req)
 		if err != nil {
 			// ThrottlingException: Rate exceeded
 			if tfawserr.ErrMessageContains(err, "ThrottlingException", "Rate exceeded") {
-				return resource.RetryableError(err)
+				return retry.RetryableError(err)
 			}
-			return resource.NonRetryableError(err)
+			return retry.NonRetryableError(err)
 		}
 		return nil
 	})
