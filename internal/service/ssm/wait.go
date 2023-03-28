@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ssm"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-provider-aws/internal/tfresource"
 )
 
@@ -17,7 +17,7 @@ const (
 )
 
 func waitAssociationSuccess(ctx context.Context, conn *ssm.SSM, id string, timeout time.Duration) (*ssm.AssociationDescription, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{ssm.AssociationStatusNamePending},
 		Target:  []string{ssm.AssociationStatusNameSuccess},
 		Refresh: statusAssociation(ctx, conn, id),
@@ -38,7 +38,7 @@ func waitAssociationSuccess(ctx context.Context, conn *ssm.SSM, id string, timeo
 
 // waitDocumentDeleted waits for an Document to return Deleted
 func waitDocumentDeleted(ctx context.Context, conn *ssm.SSM, name string) (*ssm.DocumentDescription, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{ssm.DocumentStatusDeleting},
 		Target:  []string{},
 		Refresh: statusDocument(ctx, conn, name),
@@ -56,7 +56,7 @@ func waitDocumentDeleted(ctx context.Context, conn *ssm.SSM, name string) (*ssm.
 
 // waitDocumentActive waits for an Document to return Active
 func waitDocumentActive(ctx context.Context, conn *ssm.SSM, name string) (*ssm.DocumentDescription, error) { //nolint:unparam
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{ssm.DocumentStatusCreating, ssm.DocumentStatusUpdating},
 		Target:  []string{ssm.DocumentStatusActive},
 		Refresh: statusDocument(ctx, conn, name),
@@ -73,7 +73,7 @@ func waitDocumentActive(ctx context.Context, conn *ssm.SSM, name string) (*ssm.D
 }
 
 func waitServiceSettingUpdated(ctx context.Context, conn *ssm.SSM, id string, timeout time.Duration) (*ssm.ServiceSetting, error) {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"PendingUpdate", ""},
 		Target:  []string{"Customized", "Default"},
 		Refresh: statusServiceSetting(ctx, conn, id),
@@ -90,7 +90,7 @@ func waitServiceSettingUpdated(ctx context.Context, conn *ssm.SSM, id string, ti
 }
 
 func waitServiceSettingReset(ctx context.Context, conn *ssm.SSM, id string, timeout time.Duration) error {
-	stateConf := &resource.StateChangeConf{
+	stateConf := &retry.StateChangeConf{
 		Pending: []string{"Customized", "PendingUpdate", ""},
 		Target:  []string{"Default"},
 		Refresh: statusServiceSetting(ctx, conn, id),
