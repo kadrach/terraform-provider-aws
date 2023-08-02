@@ -58,9 +58,11 @@ class MyConvertedCode(TerraformStack):
 
 * `name` - (Required) Name of the cluster
 
-## Attributes Reference
+## Attribute Reference
+
+This data source exports the following attributes in addition to the arguments above:
 
 * `id` - Name of the cluster.
 * `token` - Token to use to authenticate with the cluster.
 
-<!-- cache-key: cdktf-0.17.1 input-de3307324e94622fa903191b8bb65f99964fd36735cd113c6526f127a3281941 -->
+<!-- cache-key: cdktf-0.17.1 input-45d83dddba9412e716f03bde08f7185de087e8a46407d442260f7b0e6e29f02a -->
